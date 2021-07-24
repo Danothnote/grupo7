@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, ToastAndroid } from 'react-native';
+import { View, SafeAreaView, StyleSheet, ScrollView, ToastAndroid } from 'react-native';
 import { Button, Title } from '../../components';
 import firestore from '@react-native-firebase/firestore';
 import MapView, { Marker } from 'react-native-maps';
@@ -65,76 +65,78 @@ const RequestValidation = (props: any) => {
   }
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Title text='Validar Solicitud' type={1} />
-        <View style={styles.mapContainer}>
-          <MapView
-            showsCompass
-            showsUserLocation
-            style={styles.map}
-            initialRegion={{
-              latitude: latitude,
-              longitude: longitude,
-              latitudeDelta: 0.0009,
-              longitudeDelta: 0.001
-            }}
-          >
-            <Marker
-              title={`${surname} ${name}`}
-              coordinate={{ latitude: latitude, longitude: longitude }}
+    <SafeAreaView>
+      <ScrollView>
+        <View style={styles.container}>
+          <Title text='Validar Solicitud' type={1} />
+          <View style={styles.mapContainer}>
+            <MapView
+              showsCompass
+              showsUserLocation={false}
+              style={styles.map}
+              initialRegion={{
+                latitude: latitude,
+                longitude: longitude,
+                latitudeDelta: 0.0009,
+                longitudeDelta: 0.001
+              }}
             >
-            </Marker>
-          </MapView>
-        </View>
-        <Title text={'Motivo o discapacidad'} type={1} />
-        <Title text={details} type={3} />
-        <View style={{ flex: 1, flexDirection: 'row', marginBottom: 20 }}>
-          <Title text={'Edad: '} type={2} />
-          <Title text={age} type={2} />
-        </View>
-        <View style={styles.radioGroup}>
-          <RadioButton.Group
-            onValueChange={newValue => { setGranted(newValue) }}
-            value={granted}>
-            <RadioButton.Item
-              value={'Aceptada'}
-              labelStyle={styles.radioBtnTxt}
-              label={'Aceptar'}
-              uncheckedColor={Styleprops.disabledButtonBackground}
-              color={Styleprops.primaryColor}
+              <Marker
+                title={`${surname} ${name}`}
+                coordinate={{ latitude: latitude, longitude: longitude }}
+              >
+              </Marker>
+            </MapView>
+          </View>
+          <Title text={'Motivo o discapacidad'} type={1} />
+          <Title text={details} type={3} />
+          <View style={{ flex: 1, flexDirection: 'row', marginBottom: 20 }}>
+            <Title text={'Edad: '} type={2} />
+            <Title text={age} type={2} />
+          </View>
+          <View style={styles.radioGroup}>
+            <RadioButton.Group
+              onValueChange={newValue => { setGranted(newValue) }}
+              value={granted}>
+              <RadioButton.Item
+                value={'Aceptada'}
+                labelStyle={styles.radioBtnTxt}
+                label={'Aceptar'}
+                uncheckedColor={Styleprops.disabledButtonBackground}
+                color={Styleprops.primaryColor}
+              />
+              <RadioButton.Item
+                value={'Rechazada'}
+                labelStyle={styles.radioBtnTxt}
+                label={'Rechazar'}
+                uncheckedColor={Styleprops.disabledButtonBackground}
+                color={Styleprops.primaryColor}
+              />
+            </RadioButton.Group>
+          </View>
+          {picker}
+          {show && (
+            <DateTimePicker
+              style={{ width: 200 }}
+              value={value}
+              minimumDate={new Date}
+              mode={mode}
+              onChange={(event: any, selectedDate: any) => {
+                if (event.type == 'set') {
+                  setShow(false)
+                  setValue(selectedDate)
+                  setDate(selectedDate)
+                } else {
+                  setShow(false)
+                }
+              }}
             />
-            <RadioButton.Item
-              value={'Rechazada'}
-              labelStyle={styles.radioBtnTxt}
-              label={'Rechazar'}
-              uncheckedColor={Styleprops.disabledButtonBackground}
-              color={Styleprops.primaryColor}
-            />
-          </RadioButton.Group>
+          )}
+          {btn1}
+          <Button onPress={() => props.navigation.navigate('HomeAdmin')} textButton='Regresar' type={2} />
         </View>
-        {picker}
-        {show && (
-          <DateTimePicker
-            style={{ width: 200 }}
-            value={value}
-            minimumDate={new Date}
-            mode={mode}
-            onChange={(event: any, selectedDate: any) => {
-              if (event.type == 'set') {
-              setShow(false)
-              setValue(selectedDate)
-              setDate(selectedDate)
-            } else {
-              setShow(false)
-            }
-            }}
-          />
-        )}
-        {btn1}
-        <Button onPress={() => props.navigation.navigate('HomeAdmin')} textButton='Regresar' type={2} />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

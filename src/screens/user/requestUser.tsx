@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Keyboard, ToastAndroid, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, Keyboard, ToastAndroid, Alert } from 'react-native';
 import { Button, Input, Title } from '../../components';
+import { FAB } from 'react-native-paper';
 import NetInfo from "@react-native-community/netinfo";
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -8,6 +9,8 @@ import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { UserInfo } from '../../constants/userInfo';
+import { LegacyRef } from 'react';
+import { Styleprops } from '../../constants/styleprops';
 
 const Request = (props: any) => {
   const [region, setRegion] = useState({
@@ -21,8 +24,9 @@ const Request = (props: any) => {
     longitude: 0
   });
   const [text, setText] = useState<string | null>(null);
-  const [net, setNet] = useState<Object | null>(null);
-  
+  const [marker, setMarker] = useState<Object | null>(null);
+  const mapView: LegacyRef<MapView> = React.createRef();
+
   useEffect(() => {
     check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
       .then((result) => {
@@ -41,7 +45,7 @@ const Request = (props: any) => {
             break;
           case RESULTS.GRANTED:
             console.log('The permission is granted');
-            posiciónActual();
+            currentPosition();
             break;
           case RESULTS.BLOCKED:
             console.log('The permission is denied and not requestable anymore');
@@ -49,35 +53,59 @@ const Request = (props: any) => {
         }
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error.message)
       });
-
-    const posiciónActual = () => {
-      Geolocation.getCurrentPosition(
-        position => {
-          if (position) {
-            setRegion({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              latitudeDelta: 0.0009,
-              longitudeDelta: 0.001,
-            })
-            setMarkerCoords({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            })
-          }
-        }
-      )
-    }
-
   }, []);
 
-  const onRegionChange = (region: any) => {
+  const currentPosition = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        if (position) {
+          setRegion({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.0009,
+            longitudeDelta: 0.001,
+          })
+          moveCamera({latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.0009,
+            longitudeDelta: 0.001,})
+        }
+      }, error => {
+        if (error.message == 'No location provider available.') {
+          Alert.alert('Por favor active su ubicación y vuelva a intentar')
+          props.navigation.navigate('HomeUser')
+        }
+      }
+    )
+  }
+
+  const moveCamera = (region: any) => {
+    mapView.current?.animateToRegion(region, 1000);
+  }
+
+  const onRegionChange = () => {
+    currentPosition();
     setRegion(region);
   }
 
-  const log = (eventName: any, e: any) => {
+  const onMapPress = (event: any) => {
+    setMarker(<Marker
+      title={'Mantenga precionado para arrastrar'}
+      coordinate={event.nativeEvent.coordinate}
+      onSelect={e => log('onSelect', e)}
+      onDrag={e => log('onDrag', e)}
+      onDragStart={e => log('onDragStart', e)}
+      onDragEnd={e => log('onDragEnd', e)}
+      onPress={e => log('onPress', e)}
+      draggable
+    >
+    </Marker>)
+    setMarkerCoords(event.nativeEvent.coordinate)
+  }
+
+  const log = (eventName: string, e: any) => {
     setMarkerCoords({
       latitude: e.nativeEvent.coordinate.latitude,
       longitude: e.nativeEvent.coordinate.longitude
@@ -101,41 +129,41 @@ const Request = (props: any) => {
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps='handled'>
-      <View style={styles.container}>
-        <Title text='Solicitudes' type={1} />
-        <Title text='Escoja su ubicación' type={2} />
-        <View style={styles.mapContainer}>
-          <MapView
-            showsCompass
-            showsUserLocation
-            style={styles.map}
-            initialRegion={region}
-            onRegionChange={onRegionChange}
-          >
-            <Marker
-              title={'Mantenga precionado para arrastrar'}
-              coordinate={{ latitude: markerCoords.latitude, longitude: markerCoords.longitude }}
-              onSelect={e => log('onSelect', e)}
-              onDrag={e => log('onDrag', e)}
-              onDragStart={e => log('onDragStart', e)}
-              onDragEnd={e => log('onDragEnd', e)}
-              onPress={e => log('onPress', e)}
-              draggable
+    <SafeAreaView>
+      <ScrollView keyboardShouldPersistTaps='handled'>
+        <View style={styles.container}>
+          <Title text='Solicitudes' type={1} />
+          <Title text='Toque el mapa para marcar su ubicación' type={2} />
+          <View style={styles.mapContainer}>
+            <MapView
+              showsCompass
+              showsUserLocation
+              ref={mapView}
+              style={styles.map}
+              initialRegion={region}
+              onRegionChange={onRegionChange}
+              onPress={(event) => onMapPress(event)}
             >
-            </Marker>
-          </MapView>
+              {marker}
+            </MapView>
+            <FAB
+              style={styles.fab}
+              small
+              icon="crosshairs-gps"
+              onPress={() => moveCamera(region)}
+            />
+          </View>
+          <Input
+            type={2}
+            keyboardType='default'
+            placeholder='Motivo o discapacidad por la cual solicita la vacuna a domicilio'
+            onChangeText={(text) => setText(text)}
+          />
+          <Button onPress={submit} textButton='Enviar Solicitud' type={1} />
+          <Button onPress={() => props.navigation.navigate('HomeUser')} textButton='Regresar' type={2} />
         </View>
-        <Input
-          type={2}
-          keyboardType='default'
-          placeholder='Motivo o discapacidad por la cual solicita la vacuna a domicilio'
-          onChangeText={(text) => setText(text)}
-        />
-        <Button onPress={submit} textButton='Enviar Solicitud' type={1} />
-        <Button onPress={() => props.navigation.navigate('HomeUser')} textButton='Regresar' type={2} />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -156,4 +184,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 400,
   },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    top: 0,
+    backgroundColor: Styleprops.primaryColor
+  }
 });

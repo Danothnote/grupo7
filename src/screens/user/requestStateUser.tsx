@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -37,18 +37,20 @@ const RequestStatus = (props: any) => {
   }, []);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Title text={'Estado de Solicitud'} type={1} />
-        <View style={styles.status}>
-          {ico}
-          {text}
+    <SafeAreaView>
+      <ScrollView>
+        <View style={styles.container}>
+          <Title text={'Estado de Solicitud'} type={1} />
+          <View style={styles.status}>
+            {ico}
+            {text}
+          </View>
+          <View style={styles.boton}>
+            <Button onPress={() => props.navigation.navigate('HomeUser')} textButton={'Regresar'} type={2} />
+          </View>
         </View>
-        <View style={styles.boton}>
-          <Button onPress={() => props.navigation.navigate('HomeUser')} textButton={'Regresar'} type={2} />
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

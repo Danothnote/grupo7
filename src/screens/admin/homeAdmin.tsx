@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, SafeAreaView, StyleSheet } from 'react-native';
 import { List, Title, Button } from '../../components';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -35,16 +35,16 @@ const HomeAdmin = (props: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Title text={'Bienvenido Administrador'} type={1} />
-      <View style={{ marginTop: 20 }}>
+      <View style={{ flex: 1, marginTop: 20 }}>
         <Title text={'Lista de Solicitudes'} type={2} />
         <List data={data} navigation={props.navigation} />
       </View>
-      <View style={{ flex: 1, marginTop: 20, alignItems: 'center', justifyContent:'flex-end' }}>
+      <View style={{ marginTop: 20, alignItems: 'center', justifyContent:'flex-end' }}>
         <Button onPress={signout} textButton='Cerrar Sesión' type={2} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
