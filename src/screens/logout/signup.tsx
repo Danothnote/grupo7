@@ -8,6 +8,7 @@ import moment from 'moment';
 import { Styleprops } from '../../constants/styleprops';
 
 export default function SignUp(props: any) {
+  // Se inicializan las Variables de estado
   const [name, setName] = useState<string | null>();
   const [surname, setSurname] = useState<string | null>();
   const [age, setAge] = useState<string | Date>('');
@@ -17,7 +18,8 @@ export default function SignUp(props: any) {
   const [vpassword, setVpassword] = useState<string | null>();
   const [show, setShow] = useState<boolean>(false);
   const [value, setValue] = useState<Date>(new Date);
-
+  
+  // Se realiza el registro de usuario con el formulario llenado por el usuario
   const signup = () => {
     auth()
       .createUserWithEmailAndPassword(email!!, password!!)
@@ -42,6 +44,7 @@ export default function SignUp(props: any) {
       });
   }
 
+  // Creación del documento del usuario en la base de datos de Firestore
   const createUserDB = () => {
     firestore()
       .collection('Users')
@@ -73,6 +76,7 @@ export default function SignUp(props: any) {
       });
   }
 
+  // Verificación de contraseñas iguales
   let pswrd;
   if (password != '' && vpassword != '') {
     if (password!!.length < 6) {
@@ -84,6 +88,7 @@ export default function SignUp(props: any) {
     }
   }
 
+  // El botón solo se activa cuando todos los datos estan completos
   let btn1;
   if (name != '' && surname != '' && age != '' && cedula != null && email != '' && password != '' && password == vpassword) {
     btn1 = <Button onPress={signup} textButton='Registrarse' type={1} />
@@ -91,6 +96,7 @@ export default function SignUp(props: any) {
     btn1 = <Button disabled={true} onPress={signup} textButton='Registrarse' type={1} />
   }
 
+  // Se cambia el texto del componente por la fecha de nacimiento seleccionada
   let dateTxt;
   if (age == '') {
     dateTxt = 'Fecha de nacimiento'

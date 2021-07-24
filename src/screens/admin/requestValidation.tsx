@@ -9,6 +9,7 @@ import { Styleprops } from '../../constants/styleprops';
 import moment from 'moment';
 
 const RequestValidation = (props: any) => {
+  // Se inicializan las Variables de estado
   const { key, name, surname, age, details, latitude, longitude } = props.route.params;
   const [granted, setGranted] = useState<string>('');
   const [show, setShow] = useState<boolean>(false);
@@ -16,7 +17,9 @@ const RequestValidation = (props: any) => {
   const [value, setValue] = useState<Date>(new Date);
   const [date, setDate] = useState<string | Date>('');
 
-  const next = () => {
+  // Se actualiza el formulario en la base de datos 
+  // de Firestore de acuerdo a la selección del administrador
+  const submit = () => {
     if (granted == 'Aceptada') {
       firestore()
         .collection('Submits')
@@ -34,14 +37,15 @@ const RequestValidation = (props: any) => {
     }
   }
 
+  // Los botones, textos y componentes cambian de acuerdo a las condiciones 
   let btn1;
   let picker;
   let dateTxt;
   let hourTxt;
   if (granted == '') {
-    btn1 = <Button disabled={true} onPress={next} textButton='Continuar' type={1} />
+    btn1 = <Button disabled={true} onPress={submit} textButton='Continuar' type={1} />
   } else if (granted == 'Rechazada') {
-    btn1 = <Button onPress={next} textButton='Continuar' type={1} />
+    btn1 = <Button onPress={submit} textButton='Continuar' type={1} />
   } else if (granted == 'Aceptada') {
     if (date == '') {
       dateTxt = 'Dia de visita'
@@ -50,7 +54,7 @@ const RequestValidation = (props: any) => {
       dateTxt = moment(date).format('LL')
       hourTxt = moment(date).format('LT a')
     }
-    btn1 = <Button disabled={true} onPress={next} textButton='Continuar' type={1} />
+    btn1 = <Button disabled={true} onPress={submit} textButton='Continuar' type={1} />
     picker = <View style={{ marginVertical: 20 }} >
       <Title text={'Ecoja la fecha y hora de visita'} type={1} />
       <View style={{ alignItems: 'center', marginVertical: 20 }} >
@@ -59,7 +63,7 @@ const RequestValidation = (props: any) => {
       </View>
     </View>
     if (date != '') {
-      btn1 = <Button onPress={next} textButton='Continuar' type={1} />
+      btn1 = <Button onPress={submit} textButton='Continuar' type={1} />
     }
 
   }

@@ -5,9 +5,11 @@ import auth from '@react-native-firebase/auth';
 import { Styleprops } from '../../constants/styleprops';
 
 export default function SignIn(props:any) {
+  // Se inicializan las Variables de estado
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
+  // Función de inicio de sesión con las credenciales del usuario
   const login = () => {
     if (email != '' && password != '') {
       auth()

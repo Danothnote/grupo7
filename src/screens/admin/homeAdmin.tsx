@@ -5,9 +5,11 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 const HomeAdmin = (props: any) => {
+  // Se inicializan las Variables de estado
   const [data, setData] = useState<Array<any>>([]);
 
   useEffect(() => {
+    // Se consulta en Firestore la lista de solicitudes realizadas
     const subscriber = firestore()
       .collection('Submits')
       .onSnapshot(querySnapshot => {
@@ -30,6 +32,7 @@ const HomeAdmin = (props: any) => {
 
   }, []);
 
+  // Función para cerrar sesión
   const signout = () => {
     auth().signOut()
   }

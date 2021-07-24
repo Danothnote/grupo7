@@ -4,6 +4,7 @@ import auth from '@react-native-firebase/auth';
 import { Button, Title } from '../../components';
 
 const HomeUser = (props: any) => {
+  // Función para cerrar sesión
   const signout = () => {
     auth().signOut()
   }

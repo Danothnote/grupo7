@@ -13,6 +13,7 @@ import { LegacyRef } from 'react';
 import { Styleprops } from '../../constants/styleprops';
 
 const Request = (props: any) => {
+  // Se inicializan las Variables de estado
   const [region, setRegion] = useState({
     latitude: 0,
     longitude: 0,
@@ -25,9 +26,11 @@ const Request = (props: any) => {
   });
   const [text, setText] = useState<string | null>(null);
   const [marker, setMarker] = useState<Object | null>(null);
+  // Creación de referencia para el MapView
   const mapView: LegacyRef<MapView> = React.createRef();
 
   useEffect(() => {
+    // Se verifica si se tiene permisos de ubicación, si los hay se consulta la posición actual
     check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
       .then((result) => {
         switch (result) {
@@ -53,10 +56,12 @@ const Request = (props: any) => {
         }
       })
       .catch((error) => {
-        console.log(error.message)
+        console.log(error)
       });
   }, []);
 
+  // Función para consultar la posición actual, en caso de no tener activado 
+  // el servicio de ubicación se pide al usuario que lo active
   const currentPosition = () => {
     Geolocation.getCurrentPosition(
       position => {
@@ -81,15 +86,18 @@ const Request = (props: any) => {
     )
   }
 
+  // Función para mover la cámara a la posición actual
   const moveCamera = (region: any) => {
     mapView.current?.animateToRegion(region, 1000);
   }
 
+  // Si la región cambia, se actualiza la posición en el estado
   const onRegionChange = () => {
     currentPosition();
     setRegion(region);
   }
 
+  // Se agrega un marcador al tocar la pantalla
   const onMapPress = (event: any) => {
     setMarker(<Marker
       title={'Mantenga precionado para arrastrar'}
@@ -105,6 +113,7 @@ const Request = (props: any) => {
     setMarkerCoords(event.nativeEvent.coordinate)
   }
 
+  // Mediante un evento de presionado largo, se puede mover el marcador
   const log = (eventName: string, e: any) => {
     setMarkerCoords({
       latitude: e.nativeEvent.coordinate.latitude,
@@ -112,6 +121,7 @@ const Request = (props: any) => {
     })
   }
 
+  // Se agrega el formulario en la base de datos de Firestore si se tiene internet
   const submit = () => {
     Keyboard.dismiss()
     UserInfo.latitude = markerCoords.latitude

@@ -9,10 +9,12 @@ import moment from 'moment';
 import 'moment/locale/es';
 
 const RequestStatus = (props: any) => {
+  // Se inicializan las Variables de estado
   const [ico, setIco] = useState<Object | null>(null);
   const [text, setText] = useState<Object | null>(null);
 
   useEffect(() => {
+    // Se obtiene de Firestore el estado de la solicitud, la fecha y la hora de visita
     const subscriber = firestore()
       .collection('Submits')
       .doc(auth().currentUser?.uid)
